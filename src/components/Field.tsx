@@ -4,11 +4,25 @@ import update from "immutability-helper";
 import { useDrop, XYCoord } from "react-dnd";
 import { ItemTypes } from "./ItemTypes";
 import { BlockItem } from "./interfaces";
+import { useSelector } from "react-redux";
+import { getContentSelector } from "../store/selectors";
+import { useDispatch } from "react-redux/es/exports";
+import { mainReducer, mainSlice } from "../store/slice";
 
-const Wrapper = () => {
-  const [blocks, setBlocks] = React.useState({
-    initialBlock: { top: 50, left: 20, data: "First one" },
-  });
+const Field = () => {
+  const dispatch = useDispatch();
+  const content = useSelector(getContentSelector());
+  const [blocks, setBlocks] = React.useState(content);
+  const [hasMoved, setHasMoved] = React.useState(false);
+
+  React.useEffect(() => {
+    setBlocks(content);
+  }, [content]);
+
+  React.useEffect(() => {
+    dispatch(mainSlice.actions.moveBlocks(blocks));
+    setHasMoved(false);
+  }, [hasMoved]);
 
   const moveBlocks = React.useCallback(
     (id: string, left: number, top: number) => {
@@ -19,6 +33,7 @@ const Wrapper = () => {
           },
         })
       );
+      setHasMoved(true);
     },
     [blocks, setBlocks]
   );
@@ -54,4 +69,4 @@ const Wrapper = () => {
   );
 };
 
-export default Wrapper;
+export default Field;
